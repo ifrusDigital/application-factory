@@ -60,6 +60,7 @@ projectForm.addEventListener("submit", async function (event) {
     }
 
     statusElement.textContent = "Projet enregistré avec succès.";
+    createRepoBtn.disabled = false;
     resultElement.textContent = JSON.stringify(data, null, 2);
   } catch (error) {
     console.error(error);
