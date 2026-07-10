@@ -1,1 +1,73 @@
-const statusEl=document.getElementById("status"),resultEl=document.getElementById("result"),btn=document.getElementById("generateRepoBtn");let currentProjectId=null;function client(){const c=window.APP_CONFIG||{};if(!c.SUPABASE_URL||!c.SUPABASE_ANON_KEY)throw new Error("Configure d’abord config.js.");return window.supabase.createClient(c.SUPABASE_URL,c.SUPABASE_ANON_KEY)}document.getElementById("projectForm").addEventListener("submit",async e=>{e.preventDefault();try{statusEl.textContent="Analyse IA en cours…";const s=client();const {data,error}=await s.functions.invoke("analyze-project",{body:{name:name.value,idea:idea.value,languages:languages.value}});if(error)throw error;currentProjectId=data.project_id;resultEl.textContent=JSON.stringify(data.specification,null,2);statusEl.textContent="Cahier des charges généré.";btn.disabled=false}catch(err){statusEl.textContent="Erreur";resultEl.textContent=err.message||String(err)}});btn.addEventListener("click",async()=>{try{statusEl.textContent="Création du dépôt GitHub…";const s=client();const {data,error}=await s.functions.invoke("generate-repository",{body:{project_id:currentProjectId}});if(error)throw error;statusEl.textContent="Dépôt GitHub créé.";resultEl.textContent+="\n\nDépôt : "+data.repository_url}catch(err){statusEl.textContent="Erreur GitHub";resultEl.textContent+="\n\n"+(err.message||String(err))}});
+const statusElement = document.getElementById("status");
+const resultElement = document.getElementById("result");
+const projectForm = document.getElementById("projectForm");
+
+function createSupabaseClient() {
+  const config = window.APP_CONFIG;
+
+  if (!config?.SUPABASE_URL || !config?.SUPABASE_ANON_KEY) {
+    throw new Error(
+      "La connexion Supabase n’est pas configurée dans config.js."
+    );
+  }
+
+  return window.supabase.createClient(
+    config.SUPABASE_URL,
+    config.SUPABASE_ANON_KEY
+  );
+}
+
+function createSlug(name) {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+projectForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  try {
+    statusElement.textContent = "Enregistrement du projet en cours…";
+    resultElement.textContent = "";
+
+    const name = document.getElementById("name").value.trim();
+    const idea = document.getElementById("idea").value.trim();
+    const languages = document.getElementById("languages").value.trim();
+
+    if (!name || !idea) {
+      throw new Error("Le nom et la description du projet sont obligatoires.");
+    }
+
+    const supabase = createSupabaseClient();
+
+    const { data, error } = await supabase
+      .from("projects")
+      .insert({
+        name: name,
+        slug: createSlug(name),
+        idea: idea,
+        languages: languages || "Français",
+        status: "draft"
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    statusElement.textContent = "Projet enregistré avec succès.";
+
+    resultElement.textContent = JSON.stringify(data, null, 2);
+  } catch (error) {
+    console.error(error);
+
+    statusElement.textContent = "Échec de l’enregistrement.";
+
+    resultElement.textContent =
+      error.message || "Une erreur inconnue est survenue.";
+  }
+});
