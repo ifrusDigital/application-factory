@@ -1,13 +1,16 @@
 const statusElement = document.getElementById("status");
 const resultElement = document.getElementById("result");
 const projectForm = document.getElementById("projectForm");
+const createRepoButton = document.getElementById("generateRepoBtn");
+
+let currentProject = null;
 
 function createSupabaseClient() {
   const config = window.APP_CONFIG;
 
   if (!config?.SUPABASE_URL || !config?.SUPABASE_ANON_KEY) {
     throw new Error(
-      "La connexion Supabase n’est pas configurée dans config.js."
+      "La connexion Supabase n’est pas correctement configurée dans config.js."
     );
   }
 
@@ -26,28 +29,50 @@ function createSlug(name) {
     .replace(/^-|-$/g, "");
 }
 
+function createUniqueSlug(name) {
+  return `${createSlug(name)}-${Date.now()}`;
+}
+
+function displayResult(data) {
+  resultElement.textContent = JSON.stringify(data, null, 2);
+}
+
+if (!statusElement || !resultElement || !projectForm || !createRepoButton) {
+  throw new Error(
+    "Un élément HTML indispensable est absent : status, result, projectForm ou generateRepoBtn."
+  );
+}
+
+createRepoButton.disabled = true;
+
 projectForm.addEventListener("submit", async function (event) {
   event.preventDefault();
 
   try {
     statusElement.textContent = "Enregistrement du projet en cours…";
     resultElement.textContent = "";
+    createRepoButton.disabled = true;
 
     const name = document.getElementById("name").value.trim();
     const idea = document.getElementById("idea").value.trim();
-    const languages = document.getElementById("languages").value.trim();
+    const languages = document
+      .getElementById("languages")
+      .value.trim();
 
     if (!name || !idea) {
-      throw new Error("Le nom et la description du projet sont obligatoires.");
+      throw new Error(
+        "Le nom et la description du projet sont obligatoires."
+      );
     }
 
     const supabase = createSupabaseClient();
+    const slug = createUniqueSlug(name);
 
     const { data, error } = await supabase
       .from("projects")
       .insert({
         name,
-        slug: createSlug(name),
+        slug,
         idea,
         languages: languages || "Français",
         status: "draft"
@@ -59,48 +84,111 @@ projectForm.addEventListener("submit", async function (event) {
       throw error;
     }
 
+    currentProject = data;
+
     statusElement.textContent = "Projet enregistré avec succès.";
-    createRepoBtn.disabled = false;
-    resultElement.textContent = JSON.stringify(data, null, 2);
+    displayResult(currentProject);
+
+    createRepoButton.disabled = false;
   } catch (error) {
     console.error(error);
+
+    currentProject = null;
+    createRepoButton.disabled = true;
 
     statusElement.textContent = "Échec de l’enregistrement.";
     resultElement.textContent =
       error.message || "Une erreur inconnue est survenue.";
   }
 });
-const createRepoBtn = document.getElementById("generateRepoBtn");
-createRepoBtn.addEventListener("click", async () => {
+
+createRepoButton.addEventListener("click", async function () {
   try {
-    const projectName = document.getElementById("name").value.trim();
+    if (!currentProject) {
+      throw new Error(
+        "Enregistre d’abord le projet avant de créer son dépôt GitHub."
+      );
+    }
+
+    const config = window.APP_CONFIG;
+
+    if (!config?.SUPABASE_ANON_KEY) {
+      throw new Error(
+        "La clé publique Supabase est introuvable dans config.js."
+      );
+    }
+
+    createRepoButton.disabled = true;
+    statusElement.textContent = "Création du dépôt GitHub en cours…";
 
     const response = await fetch(
-      "https://qcihwufjqsgqnnoafinp.supabase.co/functions/v1/create-github-repository",
+      `${config.SUPABASE_URL}/functions/v1/create-github-repository`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          apikey: window.CONFIG_APP.SUPABASE_ANON_KEY
+          apikey: config.SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${config.SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
-          name: projectName
+          name: currentProject.slug
         })
       }
     );
 
-    const repo = await response.json();
+    const repository = await response.json();
 
-    statusElement.textContent = "Dépôt GitHub créé.";
+    if (!response.ok) {
+      throw new Error(
+        repository.message ||
+          repository.error ||
+          "GitHub n’a pas pu créer le dépôt."
+      );
+    }
 
+    if (!repository.html_url) {
+      throw new Error(
+        "Le dépôt semble créé, mais GitHub n’a pas retourné son adresse."
+      );
+    }
+
+    const supabase = createSupabaseClient();
+
+    const { data: updatedProject, error: updateError } = await supabase
+      .from("projects")
+      .update({
+        github_repository_url: repository.html_url,
+        status: "repository_created",
+        error_message: null
+      })
+      .eq("id", currentProject.id)
+      .select()
+      .single();
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    currentProject = updatedProject;
+
+    statusElement.textContent = "Dépôt GitHub créé avec succès.";
+
+    displayResult({
+      project: currentProject,
+      repository: {
+        name: repository.name,
+        full_name: repository.full_name,
+        url: repository.html_url,
+        private: repository.private
+      }
+    });
+  } catch (error) {
+    console.error(error);
+
+    statusElement.textContent = "Erreur lors de la création GitHub.";
     resultElement.textContent =
-      JSON.stringify(repo, null, 2);
+      error.message || "Une erreur inconnue est survenue.";
 
-  } catch (e) {
-
-    statusElement.textContent = "Erreur GitHub";
-
-    resultElement.textContent = e.message;
-
+    createRepoButton.disabled = false;
   }
 });
