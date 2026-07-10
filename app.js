@@ -69,3 +69,38 @@ projectForm.addEventListener("submit", async function (event) {
       error.message || "Une erreur inconnue est survenue.";
   }
 });
+const createRepoBtn = document.getElementById("createRepoBtn");
+
+createRepoBtn.addEventListener("click", async () => {
+  try {
+    const projectName = document.getElementById("name").value.trim();
+
+    const response = await fetch(
+      "https://qcihwufjqsgqnnoafinp.supabase.co/functions/v1/create-github-repository",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: window.CONFIG_APP.SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({
+          name: projectName
+        })
+      }
+    );
+
+    const repo = await response.json();
+
+    statusElement.textContent = "Dépôt GitHub créé.";
+
+    resultElement.textContent =
+      JSON.stringify(repo, null, 2);
+
+  } catch (e) {
+
+    statusElement.textContent = "Erreur GitHub";
+
+    resultElement.textContent = e.message;
+
+  }
+});
