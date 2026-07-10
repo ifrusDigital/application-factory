@@ -46,9 +46,9 @@ projectForm.addEventListener("submit", async function (event) {
     const { data, error } = await supabase
       .from("projects")
       .insert({
-        name: name,
+        name,
         slug: createSlug(name),
-        idea: idea,
+        idea,
         languages: languages || "Français",
         status: "draft"
       })
@@ -60,13 +60,11 @@ projectForm.addEventListener("submit", async function (event) {
     }
 
     statusElement.textContent = "Projet enregistré avec succès.";
-
     resultElement.textContent = JSON.stringify(data, null, 2);
   } catch (error) {
     console.error(error);
 
     statusElement.textContent = "Échec de l’enregistrement.";
-
     resultElement.textContent =
       error.message || "Une erreur inconnue est survenue.";
   }
