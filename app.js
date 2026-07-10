@@ -69,8 +69,7 @@ projectForm.addEventListener("submit", async function (event) {
       error.message || "Une erreur inconnue est survenue.";
   }
 });
-const createRepoBtn = document.getElementById("createRepoBtn");
-
+const createRepoBtn = document.getElementById("generateRepoBtn");
 createRepoBtn.addEventListener("click", async () => {
   try {
     const projectName = document.getElementById("name").value.trim();
