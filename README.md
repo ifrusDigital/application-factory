@@ -1,6 +1,6 @@
 # Application Factory — version corrigée
 
-Cette version corrige l'erreur JavaScript `missing ) after argument list` qui bloquait le bouton d'analyse.
+Cette version corrige l'erreur JavaScript `missing ) after argument list` et ajoute un cahier des charges commercial complet pour Ifru Explore et les projets touristiques.
 
 ## Déploiement Cloudflare Pages
 
