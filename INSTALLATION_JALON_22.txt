@@ -1,0 +1,14 @@
+AWID JALON 22 — RECHERCHE CLIENT
+
+1. Décompresser le ZIP.
+2. Dans Codespaces :
+   cd /workspaces/awid13-1783707340120
+   mv lib lib_avant_jalon22
+3. Copier le nouveau dossier lib et pubspec.yaml à la racine.
+4. Remettre URL + clé Supabase dans lib/core/supabase_config.dart.
+5. Exécuter :
+   flutter pub get
+   fuser -k 8082/tcp || true
+   flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8082
+6. Se connecter avec un compte Client.
+7. Tester recherche, résultats, détails, appel et WhatsApp.

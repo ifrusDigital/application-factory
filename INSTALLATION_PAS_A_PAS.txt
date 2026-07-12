@@ -1,0 +1,34 @@
+AWID — JALON CAMPAGNES DE TRANSPORT — VERSION CORRIGÉE
+
+1. Dans Supabase SQL Editor, exécuter :
+   sql/004_transport_campaigns.sql
+
+2. Dans Codespaces :
+   cd /workspaces/awid13-1783707340120
+   mv lib lib_avant_campagnes
+
+3. Copier le dossier lib de ce ZIP à la racine du projet.
+   Copier aussi le dossier sql.
+
+4. Ne pas supprimer android, ios et web.
+
+5. Ouvrir lib/core/supabase_config.dart et remettre :
+   - l'URL Supabase correcte
+   - la Publishable/anon key correcte
+
+6. Lancer :
+   flutter pub get
+   fuser -k 8082/tcp || true
+   flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8082
+
+7. Se connecter en Transporteur.
+   Le bouton doit maintenant afficher « Nouvelle campagne ».
+
+8. Tester :
+   - plusieurs villes de collecte
+   - port de départ
+   - dates du bateau
+   - port d'arrivée
+   - wilayas desservies
+   - tarifs dégressifs
+   - téléphone et WhatsApp

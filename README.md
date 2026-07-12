@@ -1,30 +1,31 @@
-# Application Factory — générateur universel IA
+# AWID V1 Test Candidate
 
-Cette version transforme n'importe quelle idée en cahier des charges complet sans modifier `app.js` pour chaque projet.
+Projet Flutter intégré pour tester la base fonctionnelle actuelle d'AWID.
 
-## Architecture
+## Démarrage rapide
 
-- Interface : Cloudflare Pages
-- Base et fonction sécurisée : Supabase
-- Intelligence artificielle : Gemini API
-- Code et versions : GitHub
+```bash
+cd /workspaces/AWID_V1_TEST_CANDIDATE
+chmod +x scripts/*.sh
+./scripts/bootstrap.sh
 
-La clé Gemini reste dans les secrets Supabase et n'est jamais exposée dans le navigateur.
+export SUPABASE_URL="https://VOTRE-PROJET.supabase.co"
+export SUPABASE_PUBLISHABLE_KEY="VOTRE_CLE_PUBLISHABLE"
 
-## Installation unique
+./scripts/run_web.sh
+```
 
-1. Exécuter `001_application_factory.sql` dans Supabase SQL Editor.
-2. Déployer `supabase/functions/analyze-project/index.ts` sous le nom `analyze-project`.
-3. Ajouter le secret Supabase `GEMINI_API_KEY`. `GEMINI_MODEL` est facultatif.
-4. Conserver l'URL et la clé publique Supabase dans `config.js`.
-5. Publier les fichiers sur Cloudflare Pages.
+Documentation :
+- `docs/INSTALLATION_COMPLETE.md`
+- `docs/CHECKLIST_TESTS.md`
+- `docs/RECETTE_100_POURCENT.md`
 
-## Déploiement automatique de la fonction
+## État réel
 
-Le workflow `.github/workflows/deploy-edge-function.yml` fonctionne après ajout des secrets GitHub `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF` et `GEMINI_API_KEY`.
+Ce paquet intègre et permet de tester :
+- authentification et rôles ;
+- campagnes Transporteur ;
+- recherche et fiche Client ;
+- contacts téléphone / WhatsApp.
 
-## Test d'acceptation
-
-Décrire deux projets très différents. Vérifier que chaque cahier est spécifique et contient les 19 sections, les tables, les tests et les jalons jusqu'à 100 %. Vérifier ensuite qu'une ligne est enregistrée dans `projects`.
-
-La création réelle du dépôt GitHub et la génération du code appartiennent au jalon suivant. Le bouton GitHub ouvre pour l'instant le formulaire prérempli.
+Il ne prétend pas inclure les modules encore non développés : demandes d'envoi, colis, preuves, notifications, abonnements, administration et publication stores.

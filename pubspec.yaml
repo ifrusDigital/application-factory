@@ -1,0 +1,22 @@
+name: awid_mobile
+description: AWID - mise en relation clients et transporteurs France Algerie
+publish_to: "none"
+version: 0.3.0+3
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  supabase_flutter: ^2.9.1
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
