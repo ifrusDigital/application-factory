@@ -29,3 +29,7 @@ Ce paquet intègre et permet de tester :
 - contacts téléphone / WhatsApp.
 
 Il ne prétend pas inclure les modules encore non développés : demandes d'envoi, colis, preuves, notifications, abonnements, administration et publication stores.
+
+## Base unique
+
+À partir de cette archive, ne remplacez plus le dossier `lib` par d'anciens ZIP. Toutes les corrections doivent être appliquées sur cette base uniquement.
