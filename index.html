@@ -1,22 +1,5 @@
-<!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Application Factory</title><link rel="stylesheet" href="styles.css"></head>
-<body><main>
-  <div class="online">100 % EN LIGNE</div>
-  <h1>De l’idée au dépôt GitHub,<br>automatiquement.</h1>
-  <p class="lead">Décris ton projet, génère son cahier des charges puis crée son dépôt.</p>
-  <div class="grid">
-    <section class="card"><h2>Créer un projet</h2>
-      <label for="name">Nom du projet</label><input id="name" placeholder="Ex. Awid">
-      <label for="idea">Idée du projet</label><textarea id="idea"></textarea>
-      <label for="langs">Langues</label><input id="langs" value="Français, Arabe, Anglais, Kabyle">
-      <button id="analyze">Analyser automatiquement</button>
-      <p id="formError" class="error" role="alert"></p>
-    </section>
-    <section class="card"><h2>État du projet</h2>
-      <div id="status" class="status">Aucun projet lancé.</div>
-      <pre id="spec">Le cahier des charges apparaîtra ici.</pre>
-      <div class="actions"><button id="copy" class="secondary" disabled>Copier le cahier</button><button id="github" class="secondary" disabled>Créer le dépôt GitHub</button></div>
-    </section>
-  </div>
-</main><script src="app.js"></script></body></html>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Application Factory</title><link rel="stylesheet" href="styles.css"></head><body><main>
+<div class="online">100 % EN LIGNE · GÉNÉRATEUR UNIVERSEL</div><h1>De l’idée au projet complet,<br>une seule usine.</h1><p class="lead">Décris n’importe quel projet. L’IA construit un cahier professionnel adapté, sans modifier l’usine.</p>
+<div class="grid"><section class="card"><h2>Créer un projet</h2><label for="name">Nom du projet *</label><input id="name" placeholder="Ex. Awid, Ifru Explore, AB Legal"><label for="idea">Idée et problème à résoudre *</label><textarea id="idea" placeholder="Décris librement le besoin et le résultat recherché."></textarea><label for="users">Utilisateurs visés</label><input id="users" placeholder="Ex. clients, professionnels, administrateurs"><label for="business">Modèle économique</label><input id="business" placeholder="Ex. abonnement, commission, publicité, gratuit"><label for="langs">Langues</label><input id="langs" value="Français, Arabe, Anglais, Kabyle"><label for="constraints">Contraintes et fonctions importantes</label><textarea class="small" id="constraints" placeholder="Ex. géolocalisation, paiement, mobile, back-office…"></textarea><button id="analyze">Analyser automatiquement</button><p id="formError" class="error" role="alert"></p></section>
+<section class="card"><h2>État du projet</h2><div id="status" class="status">Aucun projet lancé.</div><pre id="spec">Le cahier des charges universel apparaîtra ici.</pre><div class="actions"><button id="copy" class="secondary" disabled>Copier le cahier</button><button id="github" class="secondary" disabled>Créer le dépôt GitHub</button></div></section></div>
+</main><script src="config.js"></script><script src="app.js"></script></body></html>
