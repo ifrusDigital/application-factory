@@ -1,1 +1,22 @@
-<!doctype html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Application Factory</title><link rel="stylesheet" href="styles.css"></head><body><header><div><strong>Application Factory</strong><span>Usine cloud de création d’applications</span></div></header><main><section class="hero"><p class="eyebrow">100 % EN LIGNE</p><h1>De l’idée au dépôt GitHub, automatiquement.</h1><p>Décris ton projet, génère son cahier des charges puis crée son dépôt.</p></section><section class="grid"><article class="card"><h2>Créer un projet</h2><form id="projectForm"><label>Nom du projet<input id="name" required placeholder="Ex. Awid"></label><label>Idée du projet<textarea id="idea" required rows="7"></textarea></label><label>Langues<input id="languages" value="Français, Arabe, Anglais, Kabyle"></label><button type="submit">Analyser automatiquement</button></form></article><article class="card"><h2>État du projet</h2><div id="status" class="status">Aucun projet lancé.</div><pre id="result">Le cahier des charges apparaîtra ici.</pre><button id="generateRepoBtn" disabled>Créer le dépôt GitHub</button></article></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Application Factory</title><link rel="stylesheet" href="styles.css"></head>
+<body><main>
+  <div class="online">100 % EN LIGNE</div>
+  <h1>De l’idée au dépôt GitHub,<br>automatiquement.</h1>
+  <p class="lead">Décris ton projet, génère son cahier des charges puis crée son dépôt.</p>
+  <div class="grid">
+    <section class="card"><h2>Créer un projet</h2>
+      <label for="name">Nom du projet</label><input id="name" placeholder="Ex. Awid">
+      <label for="idea">Idée du projet</label><textarea id="idea"></textarea>
+      <label for="langs">Langues</label><input id="langs" value="Français, Arabe, Anglais, Kabyle">
+      <button id="analyze">Analyser automatiquement</button>
+      <p id="formError" class="error" role="alert"></p>
+    </section>
+    <section class="card"><h2>État du projet</h2>
+      <div id="status" class="status">Aucun projet lancé.</div>
+      <pre id="spec">Le cahier des charges apparaîtra ici.</pre>
+      <div class="actions"><button id="copy" class="secondary" disabled>Copier le cahier</button><button id="github" class="secondary" disabled>Créer le dépôt GitHub</button></div>
+    </section>
+  </div>
+</main><script src="app.js"></script></body></html>

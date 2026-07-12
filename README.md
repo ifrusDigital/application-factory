@@ -1,15 +1,16 @@
-# Application Factory V1
+# Application Factory — version corrigée
 
-Plateforme cloud en français pour transformer une idée en cahier des charges puis créer automatiquement un dépôt GitHub.
+Cette version corrige l'erreur JavaScript `missing ) after argument list` qui bloquait le bouton d'analyse.
 
-## Installation
-1. Créer un projet Supabase.
-2. Exécuter le SQL dans `supabase/migrations`.
-3. Créer les deux Edge Functions depuis le tableau de bord Supabase.
-4. Ajouter les secrets `GEMINI_API_KEY`, `GEMINI_MODEL`, `GITHUB_TOKEN`, `GITHUB_OWNER`.
-5. Renseigner `config.js`.
-6. Importer le projet dans GitHub.
-7. Ajouter les secrets Cloudflare dans GitHub.
+## Déploiement Cloudflare Pages
 
-## Sécurité
-La politique RLS est ouverte uniquement pour le premier test. Ajouter Supabase Auth avant une mise en production publique.
+Importer `index.html`, `styles.css` et `app.js` à la racine du dépôt connecté à Cloudflare Pages. Aucun build n'est nécessaire pour cette version statique.
+
+## Vérification
+
+1. Saisir un nom et une idée.
+2. Cliquer sur **Analyser automatiquement**.
+3. Vérifier que le cahier des charges apparaît.
+4. Actualiser : les champs et le cahier doivent être restaurés.
+
+La génération actuelle est déterministe et fonctionne sans clé API. La connexion Gemini et la création GitHub par API seront ajoutées dans le prochain jalon sécurisé.

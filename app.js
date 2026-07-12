@@ -1,139 +1,143 @@
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+"use strict";
 
-Deno.serve(async (request: Request) => {
-  if (request.method === "OPTIONS") {
-    return new Response("ok", {
-      status: 200,
-      headers: corsHeaders,
-    });
+const $ = (id) => document.getElementById(id);
+const nameInput = $("name");
+const ideaInput = $("idea");
+const langsInput = $("langs");
+const analyzeButton = $("analyze");
+const githubButton = $("github");
+const copyButton = $("copy");
+const statusBox = $("status");
+const specBox = $("spec");
+const errorBox = $("formError");
+
+function slugify(value) {
+  return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function detectFeatures(text) {
+  const value = text.toLowerCase();
+  const tests = [
+    ["Géolocalisation et carte", /géolocal|gps|carte|proximité/],
+    ["Réservations", /réserv|hôtel|hotel|voiture|transport|conciergerie/],
+    ["Espace professionnel", /professionnel|partenaire|prestataire/],
+    ["Back-office administrateur", /administr|back.office|gestion/],
+    ["Contenus historiques et culturels", /histoire|culture|musée|monument|personnalité/],
+    ["Paiement et monétisation", /paiement|abonnement|commission|annonce|monétis/],
+    ["Notifications", /notification|alerte/],
+    ["Mode hors connexion", /hors connexion|offline/]
+  ];
+  const found = tests.filter((item) => item[1].test(value)).map((item) => item[0]);
+  return found.length ? found : ["Authentification", "Profils utilisateurs", "Tableau de bord", "Administration"];
+}
+
+function buildSpecification(projectName, idea, languages) {
+  const features = detectFeatures(idea);
+  const list = features.map((feature) => `- ${feature}`).join("\n");
+  return `CAHIER DES CHARGES — ${projectName.toUpperCase()}
+
+1. VISION DU PROJET
+${idea}
+
+2. UTILISATEURS
+- Visiteur ou client
+- Professionnel ou partenaire
+- Administrateur
+
+3. LANGUES
+${languages}
+
+4. FONCTIONNALITÉS IDENTIFIÉES
+${list}
+
+5. SOCLE TECHNIQUE
+- Interface web responsive et PWA
+- Supabase : base PostgreSQL, authentification et stockage
+- GitHub : code source et gestion des versions
+- GitHub Actions : compilation et tests automatiques
+- Cloudflare Pages : version en ligne
+- Préparation Android et iPhone
+
+6. LIVRABLES À GÉNÉRER
+- Application utilisateur
+- Espace professionnel
+- Back-office administrateur
+- Script SQL Supabase unique
+- Règles de sécurité RLS
+- Données de démonstration
+- Tests automatiques
+- Documentation d'installation et de publication
+
+7. ÉTAPES
+- Validation du cahier des charges
+- Génération de la base
+- Génération de l'application
+- Connexion Supabase
+- Tests fonctionnels
+- Déploiement Preview
+- Validation commerciale
+- Publication Android et iPhone
+
+Statut : ANALYSÉ — À VALIDER`;
+}
+
+function analyzeProject() {
+  const projectName = nameInput.value.trim();
+  const idea = ideaInput.value.trim();
+  const languages = langsInput.value.trim();
+  errorBox.textContent = "";
+  if (!projectName || !idea) {
+    errorBox.textContent = "Renseigne le nom et l’idée du projet avant l’analyse.";
+    return;
   }
+  analyzeButton.disabled = true;
+  analyzeButton.textContent = "Analyse en cours…";
+  statusBox.textContent = "Analyse du projet…";
+  window.setTimeout(() => {
+    const specification = buildSpecification(projectName, idea, languages || "Français");
+    specBox.textContent = specification;
+    statusBox.textContent = `${projectName} — cahier des charges généré.`;
+    copyButton.disabled = false;
+    githubButton.disabled = false;
+    analyzeButton.disabled = false;
+    analyzeButton.textContent = "Analyser automatiquement";
+    localStorage.setItem("factory-project", JSON.stringify({ projectName, idea, languages, specification }));
+  }, 350);
+}
 
-  if (request.method !== "POST") {
-    return sendJson(
-      {
-        error: "Méthode HTTP non autorisée.",
-      },
-      405,
-    );
-  }
-
+async function copySpecification() {
   try {
-    const githubToken = Deno.env.get("GITHUB_TOKEN");
-
-    if (!githubToken) {
-      throw new Error(
-        "Le secret GITHUB_TOKEN est introuvable dans Supabase.",
-      );
-    }
-
-    const body = await request.json();
-    const rawName = String(body?.name ?? "").trim();
-
-    if (!rawName) {
-      throw new Error("Le nom du dépôt GitHub est obligatoire.");
-    }
-
-    const repositoryName = rawName
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9._-]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-
-    if (!repositoryName) {
-      throw new Error("Le nom du dépôt GitHub est invalide.");
-    }
-
-    const githubResponse = await fetch(
-      "https://api.github.com/user/repos",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${githubToken}`,
-          Accept: "application/vnd.github+json",
-          "X-GitHub-Api-Version": "2022-11-28",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: repositoryName,
-          private: true,
-          auto_init: true,
-          description:
-            "Projet généré automatiquement par Application Factory",
-        }),
-      },
-    );
-
-    const githubData = await safeJson(githubResponse);
-
-    if (!githubResponse.ok) {
-      throw new Error(
-        githubData?.message ||
-          `GitHub n’a pas pu créer le dépôt (${githubResponse.status}).`,
-      );
-    }
-
-    return sendJson(
-      {
-        id: githubData.id,
-        name: githubData.name,
-        full_name: githubData.full_name,
-        html_url: githubData.html_url,
-        private: githubData.private,
-      },
-      201,
-    );
+    await navigator.clipboard.writeText(specBox.textContent);
+    statusBox.textContent = "Cahier des charges copié.";
   } catch (error) {
-    console.error("create-github-repository:", error);
-
-    return sendJson(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Une erreur inconnue est survenue.",
-      },
-      500,
-    );
-  }
-});
-
-async function safeJson(
-  response: Response,
-): Promise<Record<string, any>> {
-  const text = await response.text();
-
-  if (!text.trim()) {
-    return {};
-  }
-
-  try {
-    const parsed = JSON.parse(text);
-
-    return parsed && typeof parsed === "object"
-      ? parsed
-      : {};
-  } catch {
-    return {
-      raw_response: text,
-    };
+    statusBox.textContent = "Sélectionne le texte du cahier pour le copier.";
   }
 }
 
-function sendJson(
-  data: unknown,
-  status: number,
-): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      ...corsHeaders,
-      "Content-Type": "application/json",
-    },
-  });
+function openGitHub() {
+  const repository = slugify(nameInput.value) || "nouveau-projet";
+  const url = `https://github.com/new?name=${encodeURIComponent(repository)}&description=${encodeURIComponent("Projet généré avec Application Factory")}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+  statusBox.textContent = "GitHub ouvert : crée le dépôt puis importe le projet généré.";
+}
+
+analyzeButton.addEventListener("click", analyzeProject);
+copyButton.addEventListener("click", copySpecification);
+githubButton.addEventListener("click", openGitHub);
+
+try {
+  const saved = JSON.parse(localStorage.getItem("factory-project") || "null");
+  if (saved) {
+    nameInput.value = saved.projectName || "";
+    ideaInput.value = saved.idea || "";
+    langsInput.value = saved.languages || "Français, Arabe, Anglais, Kabyle";
+    specBox.textContent = saved.specification || "Le cahier des charges apparaîtra ici.";
+    if (saved.specification) {
+      statusBox.textContent = `${saved.projectName} — projet restauré.`;
+      copyButton.disabled = false;
+      githubButton.disabled = false;
+    }
+  }
+} catch (error) {
+  localStorage.removeItem("factory-project");
 }
